@@ -1,12 +1,12 @@
 // Copyright 2015 xeipuuv ( https://github.com/xeipuuv )
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
+// you may Not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //   http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
+// Unless Required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
@@ -70,151 +70,151 @@ const (
 	KEY_NOT                   = "not"
 )
 
-type subSchema struct {
+type SubSchema struct {
 
 	// basic subSchema meta properties
-	id          *string
-	title       *string
-	description *string
+	Id                          *string
+	Title                       *string
+	Description                 *string
 
-	property string
+	Property                    string
 
 	// Types associated with the subSchema
-	types jsonSchemaType
+	Types                       jsonSchemaType
 
 	// Reference url
-	ref *gojsonreference.JsonReference
+	Ref                         *gojsonreference.JsonReference
 	// Schema referenced
-	refSchema *subSchema
+	RefSchema                   *SubSchema
 	// Json reference
-	subSchema *gojsonreference.JsonReference
+	SubSchema                   *gojsonreference.JsonReference
 
 	// hierarchy
-	parent                      *subSchema
-	definitions                 map[string]*subSchema
-	definitionsChildren         []*subSchema
-	itemsChildren               []*subSchema
-	itemsChildrenIsSingleSchema bool
-	propertiesChildren          []*subSchema
+	Parent                      *SubSchema
+	Definitions                 map[string]*SubSchema
+	DefinitionsChildren         []*SubSchema
+	ItemsChildren               []*SubSchema
+	ItemsChildrenIsSingleSchema bool
+	PropertiesChildren          []*SubSchema
 
 	// validation : number / integer
-	multipleOf       *float64
-	maximum          *float64
-	exclusiveMaximum bool
-	minimum          *float64
-	exclusiveMinimum bool
+	MultipleOf           *float64
+	Maximum              *float64
+	ExclusiveMaximum     bool
+	Minimum              *float64
+	ExclusiveMinimum     bool
 
 	// validation : string
-	minLength *int
-	maxLength *int
-	pattern   *regexp.Regexp
-	format    string
+	MinLength            *int
+	MaxLength            *int
+	Pattern              *regexp.Regexp
+	Format               string
 
 	// validation : object
-	minProperties *int
-	maxProperties *int
-	required      []string
+	MinProperties        *int
+	MaxProperties        *int
+	Required             []string
 
-	dependencies         map[string]interface{}
-	additionalProperties interface{}
-	patternProperties    map[string]*subSchema
+	Dependencies         map[string]interface{}
+	AdditionalProperties interface{}
+	PatternProperties    map[string]*SubSchema
 
 	// validation : array
-	minItems    *int
-	maxItems    *int
-	uniqueItems bool
+	MinItems             *int
+	MaxItems             *int
+	UniqueItems          bool
 
-	additionalItems interface{}
+	AdditionalItems      interface{}
 
 	// validation : all
-	enum []string
+	Enum                 []string
 
 	// validation : subSchema
-	oneOf []*subSchema
-	anyOf []*subSchema
-	allOf []*subSchema
-	not   *subSchema
+	OneOf                []*SubSchema
+	AnyOf                []*SubSchema
+	AllOf                []*SubSchema
+	Not                  *SubSchema
 }
 
-func (s *subSchema) AddEnum(i interface{}) error {
+func (s *SubSchema) AddEnum(i interface{}) error {
 
 	is, err := marshalToJsonString(i)
 	if err != nil {
 		return err
 	}
 
-	if isStringInSlice(s.enum, *is) {
+	if isStringInSlice(s.Enum, *is) {
 		return errors.New(formatErrorDescription(
 			Locale.KeyItemsMustBeUnique(),
 			ErrorDetails{"key": KEY_ENUM},
 		))
 	}
 
-	s.enum = append(s.enum, *is)
+	s.Enum = append(s.Enum, *is)
 
 	return nil
 }
 
-func (s *subSchema) ContainsEnum(i interface{}) (bool, error) {
+func (s *SubSchema) ContainsEnum(i interface{}) (bool, error) {
 
 	is, err := marshalToJsonString(i)
 	if err != nil {
 		return false, err
 	}
 
-	return isStringInSlice(s.enum, *is), nil
+	return isStringInSlice(s.Enum, *is), nil
 }
 
-func (s *subSchema) AddOneOf(subSchema *subSchema) {
-	s.oneOf = append(s.oneOf, subSchema)
+func (s *SubSchema) AddOneOf(subSchema *SubSchema) {
+	s.OneOf = append(s.OneOf, subSchema)
 }
 
-func (s *subSchema) AddAllOf(subSchema *subSchema) {
-	s.allOf = append(s.allOf, subSchema)
+func (s *SubSchema) AddAllOf(subSchema *SubSchema) {
+	s.AllOf = append(s.AllOf, subSchema)
 }
 
-func (s *subSchema) AddAnyOf(subSchema *subSchema) {
-	s.anyOf = append(s.anyOf, subSchema)
+func (s *SubSchema) AddAnyOf(subSchema *SubSchema) {
+	s.AnyOf = append(s.AnyOf, subSchema)
 }
 
-func (s *subSchema) SetNot(subSchema *subSchema) {
-	s.not = subSchema
+func (s *SubSchema) SetNot(subSchema *SubSchema) {
+	s.Not = subSchema
 }
 
-func (s *subSchema) AddRequired(value string) error {
+func (s *SubSchema) AddRequired(value string) error {
 
-	if isStringInSlice(s.required, value) {
+	if isStringInSlice(s.Required, value) {
 		return errors.New(formatErrorDescription(
 			Locale.KeyItemsMustBeUnique(),
 			ErrorDetails{"key": KEY_REQUIRED},
 		))
 	}
 
-	s.required = append(s.required, value)
+	s.Required = append(s.Required, value)
 
 	return nil
 }
 
-func (s *subSchema) AddDefinitionChild(child *subSchema) {
-	s.definitionsChildren = append(s.definitionsChildren, child)
+func (s *SubSchema) AddDefinitionChild(child *SubSchema) {
+	s.DefinitionsChildren = append(s.DefinitionsChildren, child)
 }
 
-func (s *subSchema) AddItemsChild(child *subSchema) {
-	s.itemsChildren = append(s.itemsChildren, child)
+func (s *SubSchema) AddItemsChild(child *SubSchema) {
+	s.ItemsChildren = append(s.ItemsChildren, child)
 }
 
-func (s *subSchema) AddPropertiesChild(child *subSchema) {
-	s.propertiesChildren = append(s.propertiesChildren, child)
+func (s *SubSchema) AddPropertiesChild(child *SubSchema) {
+	s.PropertiesChildren = append(s.PropertiesChildren, child)
 }
 
-func (s *subSchema) PatternPropertiesString() string {
+func (s *SubSchema) PatternPropertiesString() string {
 
-	if s.patternProperties == nil || len(s.patternProperties) == 0 {
+	if s.PatternProperties == nil || len(s.PatternProperties) == 0 {
 		return STRING_UNDEFINED // should never happen
 	}
 
 	patternPropertiesKeySlice := []string{}
-	for pk := range s.patternProperties {
+	for pk := range s.PatternProperties {
 		patternPropertiesKeySlice = append(patternPropertiesKeySlice, `"`+pk+`"`)
 	}
 
