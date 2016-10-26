@@ -489,6 +489,17 @@ func (d *Schema) parseSchema(documentNode interface{}, currentSchema *SubSchema)
 		currentSchema.Maximum = maximumValue
 	}
 
+	if existsMapKey(m, KEY_READONLY) {
+		if isKind(m[KEY_READONLY], reflect.Bool) {
+			currentSchema.ReadOnly = m[KEY_READONLY].(bool)
+		} else {
+			return errors.New(formatErrorDescription(
+				Locale.MustBeOfA(),
+				ErrorDetails{"x": KEY_READONLY, "y": STRING_NUMBER},
+			))
+		}
+	}
+
 	if existsMapKey(m, KEY_EXCLUSIVE_MAXIMUM) {
 		if isKind(m[KEY_EXCLUSIVE_MAXIMUM], reflect.Bool) {
 			if currentSchema.Maximum == nil {

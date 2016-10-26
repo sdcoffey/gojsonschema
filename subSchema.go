@@ -60,6 +60,7 @@ const (
 	KEY_MAX_PROPERTIES        = "maxProperties"
 	KEY_DEPENDENCIES          = "dependencies"
 	KEY_REQUIRED              = "required"
+	KEY_READONLY              = "readonly"
 	KEY_MIN_ITEMS             = "minItems"
 	KEY_MAX_ITEMS             = "maxItems"
 	KEY_UNIQUE_ITEMS          = "uniqueItems"
@@ -73,21 +74,21 @@ const (
 type SubSchema struct {
 
 	// basic subSchema meta properties
-	Id                          *string
-	Title                       *string
-	Description                 *string
+	Id          *string
+	Title       *string
+	Description *string
 
-	Property                    string
+	Property string
 
 	// Types associated with the subSchema
-	Types                       jsonSchemaType
+	Types jsonSchemaType
 
 	// Reference url
-	Ref                         *gojsonreference.JsonReference
+	Ref *gojsonreference.JsonReference
 	// Schema referenced
-	RefSchema                   *SubSchema
+	RefSchema *SubSchema
 	// Json reference
-	SubSchema                   *gojsonreference.JsonReference
+	SubSchema *gojsonreference.JsonReference
 
 	// hierarchy
 	Parent                      *SubSchema
@@ -98,42 +99,44 @@ type SubSchema struct {
 	PropertiesChildren          []*SubSchema
 
 	// validation : number / integer
-	MultipleOf           *float64
-	Maximum              *float64
-	ExclusiveMaximum     bool
-	Minimum              *float64
-	ExclusiveMinimum     bool
+	MultipleOf       *float64
+	Maximum          *float64
+	ExclusiveMaximum bool
+	Minimum          *float64
+	ExclusiveMinimum bool
 
 	// validation : string
-	MinLength            *int
-	MaxLength            *int
-	Pattern              *regexp.Regexp
-	Format               string
+	MinLength *int
+	MaxLength *int
+	Pattern   *regexp.Regexp
+	Format    string
 
 	// validation : object
-	MinProperties        *int
-	MaxProperties        *int
-	Required             []string
+	MinProperties *int
+	MaxProperties *int
+	Required      []string
 
 	Dependencies         map[string]interface{}
 	AdditionalProperties interface{}
 	PatternProperties    map[string]*SubSchema
 
 	// validation : array
-	MinItems             *int
-	MaxItems             *int
-	UniqueItems          bool
+	MinItems    *int
+	MaxItems    *int
+	UniqueItems bool
 
-	AdditionalItems      interface{}
+	AdditionalItems interface{}
 
 	// validation : all
-	Enum                 []string
+	Enum []string
+
+	ReadOnly bool
 
 	// validation : subSchema
-	OneOf                []*SubSchema
-	AnyOf                []*SubSchema
-	AllOf                []*SubSchema
-	Not                  *SubSchema
+	OneOf []*SubSchema
+	AnyOf []*SubSchema
+	AllOf []*SubSchema
+	Not   *SubSchema
 }
 
 func (s *SubSchema) AddEnum(i interface{}) error {
