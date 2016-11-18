@@ -83,6 +83,7 @@ type SubSchema struct {
 	// Types associated with the subSchema
 	Types jsonSchemaType
 
+	OriginalRef string
 	// Reference url
 	Ref *gojsonreference.JsonReference
 	// Schema referenced

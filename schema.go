@@ -148,6 +148,7 @@ func (d *Schema) parseSchema(documentNode interface{}, currentSchema *SubSchema)
 	}
 	if k, ok := m[KEY_REF].(string); ok {
 
+		currentSchema.OriginalRef = k
 		jsonReference, err := gojsonreference.NewJsonReference(k)
 		if err != nil {
 			return err
