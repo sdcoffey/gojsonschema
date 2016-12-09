@@ -114,6 +114,8 @@ func NewReferenceLoader(source string) *jsonReferenceLoader {
 	return &jsonReferenceLoader{
 		fs:     osFS,
 		source: source,
+		cache:     make(map[string][]byte),
+		cacheLock: sync.RWMutex{},
 	}
 }
 
@@ -122,6 +124,8 @@ func NewReferenceLoaderFileSystem(source string, fs http.FileSystem) *jsonRefere
 	return &jsonReferenceLoader{
 		fs:     fs,
 		source: source,
+		cache:     make(map[string][]byte),
+		cacheLock: sync.RWMutex{},
 	}
 }
 
