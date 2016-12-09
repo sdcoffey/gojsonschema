@@ -39,6 +39,7 @@ import (
 	"strings"
 
 	"github.com/xeipuuv/gojsonreference"
+	"sync"
 )
 
 var osFS = osFileSystem(os.Open)
@@ -72,8 +73,10 @@ func (d DefaultJSONLoaderFactory) New(source string) JSONLoader {
 
 func (f FileSystemJSONLoaderFactory) New(source string) JSONLoader {
 	return &jsonReferenceLoader{
-		fs:     f.fs,
-		source: source,
+		fs:        f.fs,
+		source:    source,
+		cache:     make(map[string][]byte),
+		cacheLock: sync.RWMutex{},
 	}
 }
 
@@ -88,8 +91,10 @@ func (o osFileSystem) Open(name string) (http.File, error) {
 // references are used to load JSONs from files and HTTP
 
 type jsonReferenceLoader struct {
-	fs     http.FileSystem
-	source string
+	fs        http.FileSystem
+	source    string
+	cache     map[string][]byte
+	cacheLock sync.RWMutex
 }
 
 func (l *jsonReferenceLoader) JsonSource() interface{} {
@@ -165,24 +170,32 @@ func (l *jsonReferenceLoader) LoadJSON() (interface{}, error) {
 }
 
 func (l *jsonReferenceLoader) loadFromHTTP(address string) (interface{}, error) {
+	var bodyBuff []byte
+	l.cacheLock.RLock()
+	bodyBuff, ok := l.cache[address]
+	l.cacheLock.RUnlock()
 
-	resp, err := http.Get(address)
-	if err != nil {
-		return nil, err
-	}
+	if !ok {
+		resp, err := http.Get(address)
+		if err != nil {
+			return nil, err
+		}
 
-	// must return HTTP Status 200 OK
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(formatErrorDescription(Locale.httpBadStatus(), ErrorDetails{"status": resp.Status}))
-	}
+		// must return HTTP Status 200 OK
+		if resp.StatusCode != http.StatusOK {
+			return nil, errors.New(formatErrorDescription(Locale.httpBadStatus(), ErrorDetails{"status": resp.Status}))
+		}
+		bodyBuff, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
 
-	bodyBuff, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+		l.cacheLock.Lock()
+		l.cache[address] = bodyBuff
+		l.cacheLock.Unlock()
 	}
 
 	return decodeJsonUsingNumber(bytes.NewReader(bodyBuff))
-
 }
 
 func (l *jsonReferenceLoader) loadFromFile(path string) (interface{}, error) {
