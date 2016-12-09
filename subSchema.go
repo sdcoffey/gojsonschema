@@ -58,6 +58,7 @@ const (
 	KEY_FORMAT                = "format"
 	KEY_MIN_PROPERTIES        = "minProperties"
 	KEY_MAX_PROPERTIES        = "maxProperties"
+	KEY_LOCATION              = "location"
 	KEY_DEPENDENCIES          = "dependencies"
 	KEY_REQUIRED              = "required"
 	KEY_READONLY              = "readonly"
@@ -90,6 +91,8 @@ type SubSchema struct {
 	RefSchema *SubSchema
 	// Json reference
 	SubSchema *gojsonreference.JsonReference
+
+	Location *string
 
 	// hierarchy
 	Parent                      *SubSchema

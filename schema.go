@@ -212,6 +212,20 @@ func (d *Schema) parseSchema(documentNode interface{}, currentSchema *SubSchema)
 
 	}
 
+	// location
+	if existsMapKey(m, KEY_LOCATION) && !isKind(m[KEY_LOCATION], reflect.String) {
+		return errors.New(formatErrorDescription(
+			Locale.InvalidType(),
+			ErrorDetails{
+				"expected": TYPE_STRING,
+				"given":    KEY_LOCATION,
+			},
+		))
+	}
+	if k, ok := m[KEY_LOCATION].(string); ok {
+		currentSchema.Location = &k
+	}
+
 	// id
 	if existsMapKey(m, KEY_ID) && !isKind(m[KEY_ID], reflect.String) {
 		return errors.New(formatErrorDescription(
