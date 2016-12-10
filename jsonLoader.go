@@ -68,6 +68,8 @@ func (d DefaultJSONLoaderFactory) New(source string) JSONLoader {
 	return &jsonReferenceLoader{
 		fs:     osFS,
 		source: source,
+		cache:     make(map[string][]byte),
+		cacheLock: sync.RWMutex{},
 	}
 }
 
