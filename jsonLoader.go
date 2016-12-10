@@ -176,7 +176,6 @@ func (l *jsonReferenceLoader) LoadJSON() (interface{}, error) {
 }
 
 func (l *jsonReferenceLoader) loadFromHTTP(address string) (interface{}, error) {
-	var bodyBuff []byte
 	l.cacheLock.RLock()
 	bodyBuff, ok := l.cache[address]
 	l.cacheLock.RUnlock()
@@ -191,7 +190,7 @@ func (l *jsonReferenceLoader) loadFromHTTP(address string) (interface{}, error) 
 		if resp.StatusCode != http.StatusOK {
 			return nil, errors.New(formatErrorDescription(Locale.httpBadStatus(), ErrorDetails{"status": resp.Status}))
 		}
-		bodyBuff, err := ioutil.ReadAll(resp.Body)
+		bodyBuff, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}
