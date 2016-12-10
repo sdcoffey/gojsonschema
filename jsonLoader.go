@@ -43,6 +43,8 @@ import (
 )
 
 var osFS = osFileSystem(os.Open)
+var requestCache = make(map[string][]byte)
+var cacheLock = sync.RWMutex{}
 
 // JSON loader interface
 
@@ -68,8 +70,6 @@ func (d DefaultJSONLoaderFactory) New(source string) JSONLoader {
 	return &jsonReferenceLoader{
 		fs:     osFS,
 		source: source,
-		cache:     make(map[string][]byte),
-		cacheLock: sync.RWMutex{},
 	}
 }
 
@@ -77,8 +77,6 @@ func (f FileSystemJSONLoaderFactory) New(source string) JSONLoader {
 	return &jsonReferenceLoader{
 		fs:        f.fs,
 		source:    source,
-		cache:     make(map[string][]byte),
-		cacheLock: sync.RWMutex{},
 	}
 }
 
@@ -95,8 +93,6 @@ func (o osFileSystem) Open(name string) (http.File, error) {
 type jsonReferenceLoader struct {
 	fs        http.FileSystem
 	source    string
-	cache     map[string][]byte
-	cacheLock sync.RWMutex
 }
 
 func (l *jsonReferenceLoader) JsonSource() interface{} {
@@ -116,8 +112,6 @@ func NewReferenceLoader(source string) *jsonReferenceLoader {
 	return &jsonReferenceLoader{
 		fs:     osFS,
 		source: source,
-		cache:     make(map[string][]byte),
-		cacheLock: sync.RWMutex{},
 	}
 }
 
@@ -126,8 +120,6 @@ func NewReferenceLoaderFileSystem(source string, fs http.FileSystem) *jsonRefere
 	return &jsonReferenceLoader{
 		fs:     fs,
 		source: source,
-		cache:     make(map[string][]byte),
-		cacheLock: sync.RWMutex{},
 	}
 }
 
@@ -176,9 +168,9 @@ func (l *jsonReferenceLoader) LoadJSON() (interface{}, error) {
 }
 
 func (l *jsonReferenceLoader) loadFromHTTP(address string) (interface{}, error) {
-	l.cacheLock.RLock()
-	bodyBuff, ok := l.cache[address]
-	l.cacheLock.RUnlock()
+	cacheLock.RLock()
+	bodyBuff, ok := requestCache[address]
+	cacheLock.RUnlock()
 
 	if !ok {
 		resp, err := http.Get(address)
@@ -195,9 +187,9 @@ func (l *jsonReferenceLoader) loadFromHTTP(address string) (interface{}, error) 
 			return nil, err
 		}
 
-		l.cacheLock.Lock()
-		l.cache[address] = bodyBuff
-		l.cacheLock.Unlock()
+		cacheLock.Lock()
+		requestCache[address] = bodyBuff
+		cacheLock.Unlock()
 	}
 
 	return decodeJsonUsingNumber(bytes.NewReader(bodyBuff))
