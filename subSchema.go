@@ -36,7 +36,7 @@ import (
 
 const (
 	KEY_SCHEMA                = "$subSchema"
-	KEY_ID                    = "$id"
+	KEY_ID                    = "id"
 	KEY_REF                   = "$ref"
 	KEY_TITLE                 = "title"
 	KEY_DESCRIPTION           = "description"
